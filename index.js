@@ -16,7 +16,7 @@ const cookieParser = require('cookie-parser');
 
 
 //** trust the proxy
-app.set('trust proxy', true);
+app.set('trust proxy', false);
 
 
 // ** connect to database

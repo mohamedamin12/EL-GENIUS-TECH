@@ -12,23 +12,30 @@ const { cloudinaryUploadImage } = require("../utils/cloudinary");
  * @access  private (only admin)
  */
 exports.createProject = asyncHandler(async (req, res, next) => {
-  // 1. validate
   if (!req.file) {
-    return next(new ApiError("No file provided", 400));
+    return next(new ApiError("No file provided", 400)); // إرسال رسالة خطأ إذا لم يتم رفع ملف
   }
 
-  const upload = await cloudinaryUploadImage(req.file.buffer, req.file.originalname);
+  try {
+    const upload = await cloudinaryUploadImage(req.file.buffer, req.file.originalname);
 
-  const uploadedImage = {
-    url: upload.secure_url,
-    publicId: upload.public_id,
-  };
+    const uploadedImage = {
+      url: upload.secure_url,
+      publicId: upload.public_id,
+    };
 
-  req.body.image = uploadedImage;
+    req.body.image = uploadedImage; 
 
-  const project = await Projects.create(req.body);
+    const project = await Projects.create(req.body);
 
-  res.status(201).json({ message: "Project created successfully", data: project });
+    res.status(201).json({
+      message: "Project created successfully",
+      data: project, 
+    });
+  } catch (error) {
+    console.log("Error creating project:", error);
+    return next(new ApiError("Error creating project", 500));
+  }
 });
 
 

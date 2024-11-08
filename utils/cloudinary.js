@@ -1,4 +1,4 @@
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -6,29 +6,36 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// Cloudinary Upload Image
+// Cloudinary Upload Image using stream for Buffer
 const cloudinaryUploadImage = async (fileBuffer, fileName) => {
-  try {
-    const data = await cloudinary.uploader.upload(fileBuffer, {
-      resource_type: "auto",
-      public_id: fileName,
-      eager: [
-        {
-          width: 800,
-          height: 800,
-          crop: "limit",
-        },
-      ], 
-    });
-    return data;
-  } catch (error) {
-    console.log("Error uploading image to Cloudinary:", error);
-    throw new Error("Error uploading image to Cloudinary");
-  }
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "auto", // Detect the type of file automatically
+        public_id: fileName,
+        eager: [
+          {
+            width: 800,
+            height: 800,
+            crop: "limit",
+          },
+        ],
+      },
+      (error, result) => {
+        if (error) {
+          console.log("Error uploading image to Cloudinary:", error);
+          reject(new Error("Error uploading image to Cloudinary"));
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    // Pipe the file buffer to the stream
+    stream.end(fileBuffer);
+  });
 };
 
 module.exports = {
   cloudinaryUploadImage,
 };
-
-
