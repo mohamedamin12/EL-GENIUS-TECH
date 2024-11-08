@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const projectSchema = new mongoose.Schema(
   {
+    link: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: [3, "Too short product link"],
+    },
     type: {
       type: String,
       required: true,
