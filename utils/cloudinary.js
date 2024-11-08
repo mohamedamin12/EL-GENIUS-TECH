@@ -1,6 +1,4 @@
-const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
-const path = require("path");
+const cloudinary = require("cloudinary");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -9,11 +7,18 @@ cloudinary.config({
 });
 
 // Cloudinary Upload Image
-exports.cloudinaryUploadImage = async (fileBuffer, fileName) => {
+const cloudinaryUploadImage = async (fileBuffer, fileName) => {
   try {
     const data = await cloudinary.uploader.upload(fileBuffer, {
-      resource_type: "auto",  // تلقائي لتحديد نوع المحتوى
-      public_id: fileName,   // تعيين اسم فريد للصورة
+      resource_type: "auto",
+      public_id: fileName,
+      eager: [
+        {
+          width: 800,
+          height: 800,
+          crop: "limit",
+        },
+      ], 
     });
     return data;
   } catch (error) {
@@ -21,4 +26,9 @@ exports.cloudinaryUploadImage = async (fileBuffer, fileName) => {
     throw new Error("Error uploading image to Cloudinary");
   }
 };
+
+module.exports = {
+  cloudinaryUploadImage,
+};
+
 

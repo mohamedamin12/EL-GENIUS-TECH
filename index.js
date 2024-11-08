@@ -15,6 +15,10 @@ const i18n = require('./middlewares/i18n.middleware');
 const cookieParser = require('cookie-parser');
 
 
+//** trust the proxy
+app.set('trust proxy', true);
+
+
 // ** connect to database
 connectToDB();
 
