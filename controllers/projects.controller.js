@@ -16,10 +16,11 @@ exports.createProject = asyncHandler(async (req, res, next) => {
     return next(new ApiError("no file provided", 400));
   }
 
-  const filePath = req.file.path;
+  const fileBuffer = req.file.buffer;
+  const fileName = new Date().toISOString().replace(/:/g, "-") + req.file.originalname;
 
   try {
-    const upload = await cloudinaryUploadImage(filePath);
+    const upload = await cloudinaryUploadImage(fileBuffer, fileName);
 
     const uploadedImage = {
       url: upload.secure_url,
@@ -30,10 +31,6 @@ exports.createProject = asyncHandler(async (req, res, next) => {
 
     const project = await Projects.create(req.body);
     res.status(201).json({ message: "Project created successfully", data: project });
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
   } catch (error) {
     return next(new ApiError("Error uploading image to Cloudinary", 500));
   }

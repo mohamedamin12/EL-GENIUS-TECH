@@ -9,31 +9,16 @@ cloudinary.config({
 });
 
 // Cloudinary Upload Image
-const cloudinaryUploadImage = async (filePath) => {
+exports.cloudinaryUploadImage = async (fileBuffer, fileName) => {
   try {
-    const data = await cloudinary.uploader.upload(filePath, {
-      resource_type: "auto",
+    const data = await cloudinary.uploader.upload(fileBuffer, {
+      resource_type: "auto",  // تلقائي لتحديد نوع المحتوى
+      public_id: fileName,   // تعيين اسم فريد للصورة
     });
     return data;
   } catch (error) {
-    console.log(error);
-    throw new Error("Error uploading to Cloudinary");
+    console.log("Error uploading image to Cloudinary:", error);
+    throw new Error("Error uploading image to Cloudinary");
   }
 };
 
-// Cloudinary Remove Image
-const cloudinaryRemoveImage = async (imagePublicId) => {
-  try {
-    const data = await cloudinary.uploader.destroy(imagePublicId);
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw new Error("Internal Server Error (cloudinary)");
-  }
-};
-
-
-module.exports = {
-  cloudinaryUploadImage,
-  cloudinaryRemoveImage,
-};
