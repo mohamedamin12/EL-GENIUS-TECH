@@ -11,29 +11,31 @@ const { cloudinaryUploadImage } = require("../utils/cloudinary");
  * @method  POST
  * @access  private (only admin)
  */
-exports.createProject = asyncHandler(async (req, res , next) => {
-  // 1. validate
+exports.createProject = asyncHandler(async (req, res, next) => {
   if (!req.file) {
     return next(new ApiError("no file provided", 400));
   }
 
-  const upload = await cloudinaryUploadImage(req.file.path);
+  const filePath = req.file.path;
 
-  const uploadedImage = {
-    url: upload.secure_url,
-    publicId: upload.public_id,
-  };
+  try {
+    const upload = await cloudinaryUploadImage(filePath);
 
-  req.body.image = uploadedImage;
+    const uploadedImage = {
+      url: upload.secure_url,
+      publicId: upload.public_id,
+    };
 
+    req.body.image = uploadedImage;
 
-  const project = await Projects.create(req.body);
-  res
-    .status(201)
-    .json({ message: "Project created successfully", data: project });
+    const project = await Projects.create(req.body);
+    res.status(201).json({ message: "Project created successfully", data: project });
 
-  if (fs.existsSync(req.file.path)) {
-    fs.unlinkSync(req.file.path);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    return next(new ApiError("Error uploading image to Cloudinary", 500));
   }
 });
 

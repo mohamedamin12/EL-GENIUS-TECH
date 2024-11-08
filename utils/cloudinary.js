@@ -1,4 +1,6 @@
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+const path = require("path");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -7,15 +9,15 @@ cloudinary.config({
 });
 
 // Cloudinary Upload Image
-const cloudinaryUploadImage = async (fileUpload) => {
+const cloudinaryUploadImage = async (filePath) => {
   try {
-    const data = await cloudinary.uploader.upload(fileUpload, {
+    const data = await cloudinary.uploader.upload(filePath, {
       resource_type: "auto",
     });
     return data;
   } catch (error) {
     console.log(error);
-    throw new Error("Internal Server Error (cloudinary)");
+    throw new Error("Error uploading to Cloudinary");
   }
 };
 
